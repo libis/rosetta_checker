@@ -1,65 +1,75 @@
 require 'optionparser'
+require 'digest'
+require 'bzip2/ffi'
+
+require_relative 'sub_command'
+require_relative 'options/files_to_ingest_cleanup'
 
 module Libis
   module RosettaChecker
-    class FilesToIngestCleanup
+    class FilesToIngestCleanup < SubCommand
 
       def self.short_desc
         'Report on files that are/are not ingested'
       end
 
-      # @param [OptionsParser] parser
-      def self.options(parser)
-        Options.new.define(parser)
+      def self.command
+        'files2ingest'
       end
 
-      class Options
-        attr_accessor :directory, :report, :report_file, :delete
+      def self.options_class
+        FilesToIngestCleanupOptions
+      end
 
-        def initialize
-          self.delete = false
-        end
-
-        # @param [OptionParser] parser
-        def define(parser)
-          parser.banner = 'Usage: Unclutter [options]'
-          parser.separator ''
-          parser.separator 'with options:'
-          define_directory parser
-        end
-
-        # @param [OptionParser] parser
-        def define_directory(parser)
-          parser.on '-d', '--directory [DIRECTORY]', 'Directory to parse and unclutter' do |dir|
-            raise ArgumentError, "Directory '#{dir}' does not exist" unless Dir.exist?(dir)
-            raise ArgumentError, "Directory '#{dir}' cannot be read" unless File.readable?(dir)
-            self.directory = dir
-          end
-        end
-
-        # @param [OptionParser] parser
-        def define_report(parser)
-          parser.on '-r', '--[no-]report', 'Create a report file' do |flag|
-            self.report = flag
-          end
-        end
-
-        # @param [OptionParser] parser
-        def define_report_file(parser)
-          parser.on '-f', '--report-file [FILE]', 'File name for the report, if enabled',
-                    'Default file name is unclutter-<timestamp>.csv' do |file|
-            self.report_file = file
-          end
-        end
-
-        # @param [OptionParser] parser
-        def define_delete(parser)
-          parser.on '-x', '--execute-delete', 'Perform file deletes when ingest check is true' do |flag|
-            self.delete = flag
-          end
+      def self.run
+        super do |cfg|
+          raise ArgumentError, 'Need to specify at least a directory to parse' unless cfg.directory
+          @cfg = cfg
+          process_dir(cfg.directory)
         end
       end
 
+      def self.process_dir(dir)
+        Dir.entries(dir).each do |entry|
+          next if %w'. ..'.include? entry
+          path = File.join dir, entry
+          begin
+            self.process_dir path if @cfg.recursive
+            next
+          end if File.directory?(path)
+          self.process_file path
+        end
+      end
+
+      def self.process_file(file)
+        if File.extname(file) == '.bz2'
+          reader = Bzip2::FFI::Reader.open(file)
+          filesize = 0
+          md5 = Digest::MD5.new
+          while (data = reader.read(2048000)) do
+            filesize += data.length
+            md5 << data
+          end
+          reader.close
+          md5_checksum = md5.hexdigest
+          check_file file, filesize, md5_checksum
+        else
+          filesize = File.size(file)
+          md5_checksum = Digest::MD5.file file
+          check_file file, filesize, md5_checksum
+        end
+      end
+
+      def self.check_file(file, filesize, md5)
+        puts "#{file} #{filesize} #{md5}"
+        # TODO:
+        # - check if file exists in Rosetta DB
+        #   - try to find in permanent storage with filesize and md5
+        #   - if not found, try to find in operational storage
+        #  - make sure oracle connection is open before starting this.
+        #  - if found, report IE, REP and FL id of the file
+        #  - if not found, report and check config if file needs to be deleted.
+      end
     end
   end
 end
