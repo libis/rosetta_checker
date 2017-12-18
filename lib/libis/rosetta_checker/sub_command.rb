@@ -28,7 +28,7 @@ module Libis
             puts opts
             exit
           end
-        end.order(argv)
+        end.order!(argv)
       end
 
       def self.run
@@ -40,7 +40,7 @@ module Libis
         self.help
       rescue StandardError => e
         $stderr.puts "ERROR: #{e.message} @ #{e.backtrace.first}"
-          # ap e.backtrace
+          ap e.backtrace
       rescue Interrupt
         $stderr.puts "ERROR: Interrupted."
       end

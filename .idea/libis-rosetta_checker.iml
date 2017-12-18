@@ -20,5 +20,6 @@
     <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.7.0, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ruby-oci8 (v2.2.5, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ruby-progressbar (v1.9.0, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubyzip (v1.2.1, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
   </component>
 </module>
