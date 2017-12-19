@@ -2,17 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="417fb874-36ab-40d6-8b52-72e03d46d278" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change beforePath="$PROJECT_DIR$/.idea/libis-rosetta_checker.iml" afterPath="$PROJECT_DIR$/.idea/libis-rosetta_checker.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/bin/rosetta_checker" afterPath="$PROJECT_DIR$/exe/rosetta_checker" />
-      <change beforePath="$PROJECT_DIR$/exe/libis-rosetta_checker" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/lib/libis/rosetta_checker.rb" afterPath="$PROJECT_DIR$/lib/libis/rosetta_checker.rb" />
-      <change beforePath="$PROJECT_DIR$/lib/libis/rosetta_checker/files_to_ingest_cleanup.rb" afterPath="$PROJECT_DIR$/lib/libis/rosetta_checker/files_to_ingest_cleanup.rb" />
-      <change beforePath="$PROJECT_DIR$/lib/libis/rosetta_checker/options/files_to_ingest_cleanup.rb" afterPath="$PROJECT_DIR$/lib/libis/rosetta_checker/options/files_to_ingest_cleanup.rb" />
-      <change beforePath="$PROJECT_DIR$/lib/libis/rosetta_checker/sub_command.rb" afterPath="$PROJECT_DIR$/lib/libis/rosetta_checker/sub_command.rb" />
-      <change beforePath="$PROJECT_DIR$/lib/libis/rosetta_checker/version.rb" afterPath="$PROJECT_DIR$/lib/libis/rosetta_checker/version.rb" />
-      <change beforePath="$PROJECT_DIR$/libis-rosetta_checker.gemspec" afterPath="$PROJECT_DIR$/libis-rosetta_checker.gemspec" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -31,7 +21,7 @@
         <entry file="file://$PROJECT_DIR$/lib/libis/rosetta_checker/files_to_ingest_cleanup.rb">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="278">
-              <caret line="64" column="24" lean-forward="true" selection-start-line="64" selection-start-column="24" selection-end-line="64" selection-end-column="24" />
+              <caret line="64" column="24" lean-forward="false" selection-start-line="64" selection-start-column="24" selection-end-line="64" selection-end-column="24" />
               <folding />
             </state>
           </provider>
@@ -81,7 +71,7 @@
         <entry file="file://$PROJECT_DIR$/spec.log">
           <provider selected="true" editor-type-id="LogFileEditorProvider">
             <state relative-caret-position="270">
-              <caret line="15" column="60" lean-forward="true" selection-start-line="8" selection-start-column="26" selection-end-line="16" selection-end-column="0" />
+              <caret line="15" column="60" lean-forward="false" selection-start-line="8" selection-start-column="26" selection-end-line="16" selection-end-column="0" />
             </state>
           </provider>
         </entry>
@@ -96,7 +86,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="rosetta_checker.rb" pinned="false" current-in-tab="true">
+      <file leaf-file-name="rosetta_checker.rb" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/libis/rosetta_checker.rb">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="522">
@@ -111,6 +101,16 @@
           <provider selected="true" editor-type-id="LogFileEditorProvider">
             <state relative-caret-position="213">
               <caret line="37" column="29" lean-forward="false" selection-start-line="37" selection-start-column="29" selection-end-line="37" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="version.rb" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/lib/libis/rosetta_checker/version.rb">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="90">
+              <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -308,7 +308,7 @@
       <workItem from="1513328586966" duration="16041000" />
       <workItem from="1513580669763" duration="36533000" />
       <workItem from="1513675434551" duration="13497000" />
-      <workItem from="1513697124138" duration="3871000" />
+      <workItem from="1513697124138" duration="4855000" />
     </task>
     <task id="LOCAL-00001" summary="First draft:&#10; - subcommand framework&#10; - directory parsing&#10; - bz2 decompress&#10; - filesize and md5 checksum">
       <created>1513360840442</created>
@@ -324,11 +324,18 @@
       <option name="project" value="LOCAL" />
       <updated>1513617290505</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Files2Ingest additional command-line options">
+      <created>1513702107506</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1513702107506</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="74373000" />
+    <option name="totallyTimeSpent" value="75357000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -345,11 +352,11 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="DB Browser" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="DB Execution Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39977476" sideWeight="0.50238097" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3283237" sideWeight="0.50428396" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Redis Servers" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32716763" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32716763" sideWeight="0.49632803" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3277027" sideWeight="0.49285713" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3283237" sideWeight="0.4978701" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3283237" sideWeight="0.49571604" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25581396" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -375,7 +382,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="First draft:&#10; - subcommand framework&#10; - directory parsing&#10; - bz2 decompress&#10; - filesize and md5 checksum" />
     <MESSAGE value="Files2Ingest feature complete version" />
-    <option name="LAST_COMMIT_MESSAGE" value="Files2Ingest feature complete version" />
+    <MESSAGE value="Files2Ingest additional command-line options" />
+    <option name="LAST_COMMIT_MESSAGE" value="Files2Ingest additional command-line options" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -563,6 +571,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
           <caret line="14" column="0" lean-forward="true" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -570,6 +579,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -577,6 +587,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="342">
           <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -632,14 +643,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/libis/rosetta_checker/version.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.rvm/gems/ruby-2.3.5@rosetta_checker/gems/multi_json-1.12.2/lib/multi_json/adapter.rb">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="393">
@@ -691,7 +694,7 @@
     <entry file="file://$PROJECT_DIR$/lib/libis/rosetta_checker/files_to_ingest_cleanup.rb">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="278">
-          <caret line="64" column="24" lean-forward="true" selection-start-line="64" selection-start-column="24" selection-end-line="64" selection-end-column="24" />
+          <caret line="64" column="24" lean-forward="false" selection-start-line="64" selection-start-column="24" selection-end-line="64" selection-end-column="24" />
           <folding />
         </state>
       </provider>
@@ -705,7 +708,7 @@
       </provider>
       <provider selected="true" editor-type-id="LogFileEditorProvider">
         <state relative-caret-position="270">
-          <caret line="15" column="60" lean-forward="true" selection-start-line="8" selection-start-column="26" selection-end-line="16" selection-end-column="0" />
+          <caret line="15" column="60" lean-forward="false" selection-start-line="8" selection-start-column="26" selection-end-line="16" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -734,6 +737,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="522">
           <caret line="29" column="15" lean-forward="false" selection-start-line="29" selection-start-column="15" selection-end-line="29" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/libis/rosetta_checker/version.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
           <folding />
         </state>
       </provider>
