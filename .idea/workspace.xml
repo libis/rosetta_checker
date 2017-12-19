@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="417fb874-36ab-40d6-8b52-72e03d46d278" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/libis-rosetta_checker.iml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -308,7 +311,7 @@
       <workItem from="1513328586966" duration="16041000" />
       <workItem from="1513580669763" duration="36533000" />
       <workItem from="1513675434551" duration="13497000" />
-      <workItem from="1513697124138" duration="4855000" />
+      <workItem from="1513697124138" duration="5211000" />
     </task>
     <task id="LOCAL-00001" summary="First draft:&#10; - subcommand framework&#10; - directory parsing&#10; - bz2 decompress&#10; - filesize and md5 checksum">
       <created>1513360840442</created>
@@ -331,11 +334,18 @@
       <option name="project" value="LOCAL" />
       <updated>1513702107506</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Release: 1.0">
+      <created>1513703971122</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1513703971122</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="75357000" />
+    <option name="totallyTimeSpent" value="75713000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -383,7 +393,8 @@
     <MESSAGE value="First draft:&#10; - subcommand framework&#10; - directory parsing&#10; - bz2 decompress&#10; - filesize and md5 checksum" />
     <MESSAGE value="Files2Ingest feature complete version" />
     <MESSAGE value="Files2Ingest additional command-line options" />
-    <option name="LAST_COMMIT_MESSAGE" value="Files2Ingest additional command-line options" />
+    <MESSAGE value="Release: 1.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="Release: 1.0" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
