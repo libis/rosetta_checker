@@ -26,6 +26,8 @@ module Libis
       end
       puts ''
       puts "See '#{main_command} help COMMAND' or '#{main_command} COMMAND --help' for more information."
+      puts "A more detailed discussion on the toolkit is available on-line on the LIBIS teamwork" +
+               " (https://libis.teamwork.com/#/notebooks/168158)."
       exit
     end
 

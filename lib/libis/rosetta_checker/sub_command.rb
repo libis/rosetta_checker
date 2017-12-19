@@ -22,6 +22,10 @@ module Libis
       def self.options(*argv)
         argv = ARGV if argv.empty?
         @config ||= self.options_class.new "#{RosettaChecker.main_command} #{self.command}"
+        parse_options(argv)
+      end
+
+      def self.parse_options(argv)
         OptionParser.new do |opts|
           @config.define opts
           opts.on '-h', '--help', 'Show this help' do
@@ -33,7 +37,8 @@ module Libis
 
       def self.run
         self.options
-        yield @config
+        instance = self.new(@config)
+        instance.run(ARGV)
       rescue OptionParser::ParseError => e
         puts "ERROR: #{e.message}"
         puts ''
@@ -43,6 +48,8 @@ module Libis
           ap e.backtrace
       rescue Interrupt
         $stderr.puts "ERROR: Interrupted."
+      ensure
+          instance.finalize if instance
       end
 
       def self.subcommands

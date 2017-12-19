@@ -12,6 +12,9 @@
     <orderEntry type="library" scope="PROVIDED" name="bzip2-ffi (v1.0.0, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.3, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ffi (v1.9.18, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="little-plugger (v1.1.4, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="logging (v2.2.2, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="multi_json (v1.12.2, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rake (v10.5.0, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rspec (v3.7.0, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.7.0, RVM: ruby-2.3.5 [rosetta_checker]) [gem]" level="application" />

@@ -3,7 +3,7 @@ require 'digest'
 require 'bzip2/ffi'
 require 'zip'
 require 'oci8'
-require 'logger'
+require 'logging'
 require 'pathname'
 require 'csv'
 
@@ -15,11 +15,11 @@ module Libis
     class FilesToIngestCleanup < SubCommand
 
       def self.short_desc
-        'Report on files that are/are not ingested'
+        'Report on files that are/are not ingested'.freeze
       end
 
       def self.command
-        'files2ingest'
+        'files2ingest'.freeze
       end
 
       def self.options_class
@@ -28,7 +28,6 @@ module Libis
 
       def self.run
         super do |cfg|
-          raise ArgumentError, 'Need to specify at least a directory/file to parse' unless ARGV.size > 0
           self.new(cfg).run(ARGV)
         end
       end
@@ -37,20 +36,46 @@ module Libis
 
       def initialize(cfg)
         @cfg = cfg
-        if @cfg.report
-          @report = CSV.open(@cfg.report_file, 'wb')
-          @report << %w'type parent name size md5 found ie rep fl orig_name match owner label groupid entity_type userc'
+
+        setup_logging
+
+        setup_db
+      end
+
+      def finalize
+        cursor.close if cursor
+        connection.logoff if connection
+      end
+
+      def run(argv)
+        raise ArgumentError, 'Need to specify at least a directory/file to parse' unless argv.size > 0
+        while (dir = argv.shift)
+          process_dir dir
+          next if argv.empty?
+          self.class.parse_options(argv)
+          setup_logging
         end
-        @logger = Logger.new($stdout)
-        @connection = OCI8.new(@cfg.dbuser, @cfg.dbpass, @cfg.dburl)
-        find_sql ||= <<-SQL
+      end
+
+      protected
+
+      SQL_DATA = %w'ie_id rep_id fl_id original_name owner label group_id entity_type user_c'
+      CSV_HEADER = %w'parent_type parent file size md5 found name_match' + SQL_DATA
+
+      LOG_PATTERN = "[%d #%p] %-5l : %m\n".freeze
+
+      MSG_CALC_FC = '  - Calculating filesize and checksum'.freeze
+      MSG_CHCK_DB = '  - Checking file in DB'.freeze
+      MSG_DEFLATE = '  - Deflating'.freeze
+
+      FIND_SQL = <<-SQL
         SELECT
           CONCAT(sp.VALUE, ps.INDEX_LOCATION) as path,
           ps.FILE_SIZE as filesize,
           ps.CHECK_SUM_TYPE as checksum_type,
           ps.CHECK_SUM as checksum,
           sr.FILEORIGINALNAME as original_name,
-          ps.STORED_ENTITY_ID as file_id,
+          ps.STORED_ENTITY_ID as fl_id,
           cr.PID as rep_id,
           ci.PID as ie_id,
           ci.OWNER as owner,
@@ -73,29 +98,38 @@ module Libis
         AND cf.OBJECTTYPE = 'FILE'
         AND cr.OBJECTTYPE = 'REPRESENTATION'
         AND ci.OBJECTTYPE = 'INTELLECTUAL_ENTITY'
-        SQL
-        @cursor = @connection.parse(find_sql)
+      SQL
+
+      def setup_logging
+        Logging.logger.root.level = :info
+        @logger = Logging.logger[self.class.command]
+        @logger.appenders = [Logging.appenders.stdout]
+        Logging.appenders.stdout.level = (@cfg.quiet ? :warn : :info)
+        @cfg.log_file = nil if @cfg.log_file&.chomp&.strip&.empty?
+        @logger.add_appenders Logging.appenders.file(
+            @cfg.log_file,
+            truncate: false,
+            layout: Logging.layouts.pattern(pattern: LOG_PATTERN)
+        ) if @cfg.log_file
+      end
+
+      def setup_db
+        @connection = OCI8.new(@cfg.dbuser, @cfg.dbpass, @cfg.dburl)
+        @cursor = @connection.parse(FIND_SQL)
         @cursor.prefetch_rows = 10
-        ObjectSpace.define_finalizer(self, self.class.finalize(connection, cursor, report))
-      end
-
-      def self.finalize(connection, cursor, report)
-        proc {
-          cursor.close if cursor
-          connection.logoff if connection
-          report.close if report
-        }
-      end
-
-      def run(argv)
-        argv.each {|dir| process_dir dir}
       end
 
       def process_dir(dir)
         if File.directory?(dir)
-          logger.error "Directory '#{dir}' does not exist" unless Dir.exist?(dir)
-          logger.error "Directory '#{dir}' cannot be read" unless File.readable?(dir)
-          puts "Processing dir '#{dir}' :"
+          unless Dir.exist?(dir)
+            logger.error "Directory '#{dir}' does not exist"
+            return nil
+          end
+          unless File.readable?(dir)
+            logger.error "Directory '#{dir}' cannot be read"
+            return nil
+          end
+          logger.info "Processing dir '#{dir}'"
           Dir.entries(dir).each do |entry|
             next if %w'. ..'.include? entry
             path = File.join dir, entry
@@ -105,15 +139,13 @@ module Libis
             end if File.directory?(path)
             process_file path
           end
-          puts "=== End of  dir '#{dir}' ==="
         elsif dir[0] == '@'
           file = to_file(dir[1..-1])
-          return unless file
-          puts "Processing input file '#{file}' :"
+          return nil unless file
+          logger.info "Processing input file '#{file}'"
           File.open(file, 'r').each_line do |line|
             process_file(line.chomp, File.dirname(file))
           end
-          puts "=== End of input file '#{file}' ==="
         elsif File.file?(dir)
           process_file(dir)
         else
@@ -143,102 +175,101 @@ module Libis
         file = to_file(_file, *search_dir)
         return unless file
 
-        process_dir(file) if File.directory?(file)
+        if File.directory?(file)
+          process_dir(file)
+          return
+        end
 
-        puts "- #{File.basename(file)}"
+        info = {
+            parent_type: 'D',
+            parent: File.dirname(file),
+            file: File.basename(file)
+        }
+
+        logger.info "- #{file}"
         if File.extname(file) == '.bz2'
-          puts "  - Deflating"
-          filesize = 0
-          reader = Bzip2::FFI::Reader.open(file)
+          logger.info MSG_DEFLATE
+          info[:size] = 0
+          reader = Bzip2::FFI::Reader.open file
           md5 = Digest::MD5.new
-          puts "  - Calculating filesize and checksum"
-          while (data = reader.read(2048000)) do
-            filesize += data.length
+          logger.info MSG_CALC_FC
+          while (data = reader.read 2048000) do
+            info[:size] += data.length
             md5 << data
           end
           reader.close
-          md5_checksum = md5.hexdigest
-          check_file file, File.basename(file, '.*'), filesize, md5_checksum
+          info[:parent_type] = 'F'
+          info[:parent] = file
+          info[:file] = File.basename file, '.bz2'
+          info[:md5] = md5.hexdigest
+          check_file info
         elsif File.extname(file) == '.zip'
-          puts "  - Unpacking"
+          logger.info '  - Unpacking'.freeze
+          info[:parent_type] = 'Z'
+          info[:parent] = file
           Zip::File.open(file) do |zip|
             zip.each do |entry|
               next if entry.directory?
-              puts "  - #{entry.name}"
-              puts "    - Calculating filesize and checksum"
-              filesize = 0
+              info[:file] = entry.name
+              logger.info "- #{file}/#{entry.name}"
+              logger.info MSG_CALC_FC
+              info[:size] = 0
               md5 = Digest::MD5.new
               reader = entry.get_input_stream
-              while (data = reader.read(2048000)) do
-                filesize += data.length
+              while (data = reader.read 2048000) do
+                info[:size] += data.length
                 md5 << data
               end
               reader.close
-              md5_checksum = md5.hexdigest
-              check_file file, entry.name, filesize, md5_checksum
+              info[:md5] = md5.hexdigest
+              check_file info
             end
           end
-          puts "  === End of ZIP file '#{file}' ==="
         else
           begin
-            puts "  - Calculating filesize and checksum"
-            filesize = File.size(file)
-            md5_checksum = Digest::MD5.file file
-            check_file File.dirname(file), File.basename(file), filesize, md5_checksum
+            logger.info MSG_CALC_FC
+            info[:size] = File.size file
+            info[:md5] = Digest::MD5.file file
+            check_file info
           rescue Exception
             logger.error "Could not access file '#{file}'"
           end
         end
       end
 
-      def check_file(parent, file, filesize, md5)
-        puts "   - Checking file in DB"
+      def check_file(info)
+        logger.info MSG_CHCK_DB
 
-        data = {
-            parent_type: File.directory?(parent) ? 'D' : 'F',
-            parent: parent,
-            file: file,
-            size: filesize,
-            md5: md5
-        }
-
-        cursor.bind_param(':filesize', filesize.to_i)
-        cursor.bind_param(':checksum', md5.to_s)
+        cursor.bind_param(':filesize', info[:size].to_i)
+        cursor.bind_param(':checksum', info[:md5].to_s)
 
         cursor.exec
 
         while (found = cursor.fetch_hash)
-          %w'IE_ID REP_ID FILE_ID ORIGINAL_NAME OWNER LABEL GROUP_ID ENTITY_TYPE USER_C'.each do |x|
-            data[x.downcase.to_sym] = found[x]
-          end
-          if found['ORIGINAL_NAME'] =~ Regexp.new(file.split(/[ #._-]/).join('.*'))
-            data[:name_match] = true
+          SQL_DATA.each {|x| info[x.to_sym] = found[x.upcase]}
+          logger.info "    found match: #{info[:ie_id]}/#{info[:rep_id]}/#{info[:fl_id]}"
+          if info[:original_name] =~ Regexp.new(info[:file].split(/[ #._-]/).join('.*'))
+            logger.info "    name matches: #{info[:original_name]}"
+            info[:name_match] = true
           else
-            data[:name_match] = false
+            info[:name_match] = false
           end
 
         end
 
-        data[:found] = cursor.row_count
+        info[:found] = cursor.row_count
 
-        @report << [
-            data[:parent_type],
-            data[:parent],
-            data[:file],
-            data[:size],
-            data[:md5],
-            data[:found],
-            data[:ie_id],
-            data[:rep_id],
-            data[:file_id],
-            data[:original_name],
-            data[:name_match],
-            data[:owner],
-            data[:label],
-            data[:group_id],
-            data[:entity_type],
-            data[:user_c]
-        ]
+        to_report(info)
+
+      end
+
+      def to_report(info = nil)
+        return unless @cfg.report
+        unless @report
+          @report ||= CSV.open(@cfg.report_file, 'wb')
+          @report << CSV_HEADER
+        end
+        @report << CSV_HEADER.map {|x| info[x.to_sym]} if info
       end
 
     end
