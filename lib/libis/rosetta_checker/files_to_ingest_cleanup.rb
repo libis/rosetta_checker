@@ -245,6 +245,8 @@ module Libis
 
         cursor.exec
 
+        info_list = []
+
         while (found = cursor.fetch_hash)
           SQL_DATA.each {|x| info[x.to_sym] = found[x.upcase]}
           logger.info "    found match: #{info[:ie_id]}/#{info[:rep_id]}/#{info[:fl_id]}"
@@ -255,11 +257,20 @@ module Libis
             info[:name_match] = false
           end
 
+          info_list << info.dup
+
         end
 
-        info[:found] = cursor.row_count
-
-        to_report(info)
+        case cursor.row_count
+          when 0..1
+            info[:found] = cursor.row_count
+            to_report info
+          else
+            info_list.each do |i|
+              i[:found] = cursor.row_count
+              to_report i
+            end
+        end
 
       end
 
