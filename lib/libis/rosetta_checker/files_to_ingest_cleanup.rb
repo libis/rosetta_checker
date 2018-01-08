@@ -59,8 +59,8 @@ module Libis
 
       protected
 
-      SQL_DATA = %w'ie_id rep_id fl_id original_name owner label group_id entity_type user_c'
-      CSV_HEADER = %w'parent_type parent file size md5 found name_match' + SQL_DATA
+      SQL_DATA = %w'ie_id rep_id fl_id original_name owner label group_id entity_type user_c path'
+      CSV_HEADER = %w'parent_type parent file size md5 sha1 found name_match' + SQL_DATA
 
       LOG_PATTERN = "[%d #%p] %-5l : %m\n".freeze
 
@@ -82,7 +82,9 @@ module Libis
           ci.LABEL as label,
           cf.GROUPID as group_id,
         	ci.ENTITYTYPE as entity_type,
-        	ci.PARTITIONC as user_c
+        	ci.PARTITIONC as user_c,
+        	pm.MID AS mid,
+        	md.VALUE AS dnx
         FROM
         	V2KU_PER00.PERMANENT_INDEX ps
         	LEFT JOIN V2KU_SHR00.STORAGE_PARAMETER sp ON sp.STORAGE_ID = ps.STORAGE_ID
@@ -90,6 +92,8 @@ module Libis
         	LEFT JOIN V2KU_REP00.HDECONTROL cf ON cf.PID = ps.STORED_ENTITY_ID
         	LEFT JOIN V2KU_REP00.HDECONTROL cr ON cr.PID = cf.PARENTID
         	LEFT JOIN V2KU_REP00.HDECONTROL ci ON ci.PID = cr.PARENTID
+        	LEFT JOIN V2KU_REP00.HDEPIDMID pm ON pm.PID = cf.PID
+        	LEFT JOIN V2KU_REP00.HDEMETADATA md ON md.MID = pm.MID
         WHERE
         	sp."KEY" = 'DIR_ROOT'
         AND	ps.FILE_SIZE = :filesize
@@ -98,6 +102,7 @@ module Libis
         AND cf.OBJECTTYPE = 'FILE'
         AND cr.OBJECTTYPE = 'REPRESENTATION'
         AND ci.OBJECTTYPE = 'INTELLECTUAL_ENTITY'
+        AND md.mdid = 21
       SQL
 
       def setup_logging
@@ -189,19 +194,11 @@ module Libis
         logger.info "- #{file}"
         if File.extname(file) == '.bz2'
           logger.info MSG_DEFLATE
-          info[:size] = 0
-          reader = Bzip2::FFI::Reader.open file
-          md5 = Digest::MD5.new
-          logger.info MSG_CALC_FC
-          while (data = reader.read 2048000) do
-            info[:size] += data.length
-            md5 << data
-          end
-          reader.close
           info[:parent_type] = 'F'
           info[:parent] = file
           info[:file] = File.basename file, '.bz2'
-          info[:md5] = md5.hexdigest
+          logger.info MSG_CALC_FC
+          checksum_file Bzip2::FFI::Reader.open(file), info
           check_file info
         elsif File.extname(file) == '.zip'
           logger.info '  - Unpacking'.freeze
@@ -213,28 +210,33 @@ module Libis
               info[:file] = entry.name
               logger.info "- #{file}/#{entry.name}"
               logger.info MSG_CALC_FC
-              info[:size] = 0
-              md5 = Digest::MD5.new
-              reader = entry.get_input_stream
-              while (data = reader.read 2048000) do
-                info[:size] += data.length
-                md5 << data
-              end
-              reader.close
-              info[:md5] = md5.hexdigest
+              checksum_file entry.get_input_stream, info
               check_file info
             end
           end
         else
           begin
             logger.info MSG_CALC_FC
-            info[:size] = File.size file
-            info[:md5] = Digest::MD5.file file
+            checksum_file File.open(file), info
             check_file info
           rescue Exception
             logger.error "Could not access file '#{file}'"
           end
         end
+      end
+
+      def checksum_file(reader, info)
+        info[:size] = 0
+        md5 = Digest::MD5.new
+        sha1 = Digest::SHA1.new
+        while (data = reader.read 2048000) do
+          info[:size] += data.length
+          md5 << data
+          sha1 << data
+        end
+        reader.close
+        info[:md5] = md5.hexdigest
+        info[:sha1] = sha1.hexdigest
       end
 
       def check_file(info)
@@ -245,9 +247,12 @@ module Libis
 
         cursor.exec
 
+        info[:found] = 0
         info_list = []
 
         while (found = cursor.fetch_hash)
+          dnx = found['DNX'].read
+          next unless dnx =~ /<key id="fixityType">SHA1<\/key><key id="fixityValue">#{info[:sha1]}<\/key>/
           SQL_DATA.each {|x| info[x.to_sym] = found[x.upcase]}
           logger.info "    found match: #{info[:ie_id]}/#{info[:rep_id]}/#{info[:fl_id]}"
           if info[:original_name] =~ Regexp.new(info[:file].split(/[ #._-]/).join('.*'))
@@ -261,15 +266,13 @@ module Libis
 
         end
 
-        case cursor.row_count
-          when 0..1
-            info[:found] = cursor.row_count
-            to_report info
-          else
-            info_list.each do |i|
-              i[:found] = cursor.row_count
-              to_report i
-            end
+        if info_list.empty?
+          to_report info
+        else
+          info_list.each do |i|
+            i[:found] = info_list.count
+            to_report i
+          end
         end
 
       end
