@@ -201,18 +201,28 @@ module Libis
           checksum_file Bzip2::FFI::Reader.open(file), info
           check_file info
         elsif File.extname(file) == '.zip'
-          logger.info '  - Unpacking'.freeze
-          info[:parent_type] = 'Z'
-          info[:parent] = file
-          Zip::File.open(file) do |zip|
-            zip.each do |entry|
-              next if entry.directory?
-              info[:file] = entry.name
-              logger.info "- #{file}/#{entry.name}"
-              logger.info MSG_CALC_FC
-              checksum_file entry.get_input_stream, info
-              check_file info
+          begin
+            logger.info MSG_CALC_FC
+            checksum_file File.open(file), info
+            unless check_file info > 0
+              logger.info '  - Unpacking'.freeze
+              info[:parent_type] = 'Z'
+              info[:parent] = file
+              Zip::File.open(file) do |zip|
+                zip.each do |entry|
+                  next if entry.directory?
+                  info[:file] = entry.name
+                  logger.info "- #{file}/#{entry.name}"
+                  logger.info MSG_CALC_FC
+                  checksum_file entry.get_input_stream, info
+                  check_file info
+                end
+              end
             end
+          rescue Zip::ZipError
+            logger.error "Could not unpack file '#{file}'"
+          rescue Exception
+            logger.error "Could not access file '#{file}'"
           end
         else
           begin
@@ -274,6 +284,8 @@ module Libis
             to_report i
           end
         end
+
+        info_list.size
 
       end
 
